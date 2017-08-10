@@ -17,8 +17,8 @@ var csrf_guid = Guid.raw();
 const api_version = "v1.1";
 const app_id = "1463294277087563";
 const app_secret = 'ae51f3571b8a93ff157ea81f8a583326';
-const me_endpoint_base_url = 'https://graph.accountkit.com/v1.0/me';
-const token_exchange_base_url = 'https://graph.accountkit.com/v1.0/access_token';
+const me_endpoint_base_url = 'https://graph.accountkit.com/v1.1/me';
+const token_exchange_base_url = 'https://graph.accountkit.com/v1.1/access_token';
 
 function loadLogin() {
     return fs.readFileSync('/index.html').toString();
