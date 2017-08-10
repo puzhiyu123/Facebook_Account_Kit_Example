@@ -26,21 +26,28 @@
             <div class="mdl-card__supporting-text">
                 <h1 class="mdl-typography--title">Passwordless Authentication</h1>
                 <h2 class="mdl-typography--subhead">Facebook Account Kit</h2>
-                <p><strong>Login via:</strong></p>
-                <ul class="demo-list-icon mdl-list">
-                    <li class="mdl-list__item">
-			    <span class="mdl-list__item-primary-content">
-			      <button onclick="loginWithSMS();" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored mdl-typography--text-center">SMS</button>
-			    </span>
-                    </li>
-                    <li class="mdl-list__item">
-                        <button onclick="loginWithEmail();" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent mdl-typography--text-center"> Email</button>
-                    </li>
-                </ul>
             </div>
         </div>
     </div>
 </div>
+
+<div class="mdl-grid">
+    <div class="mdl-cell mdl-cell--4-col mdl-cell--4-offset">
+        <input class="mdl-typography--title" value="+1" id="country_code"/>
+        <input class="mdl-typography--title" placeholder="phone number" id="phone_number"/>
+        <button onclick="smsLogin();"
+                class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored mdl-typography--text-center">
+            Login via SMS
+        </button>
+        <div>OR</div>
+        <input class="mdl-typography--title" placeholder="email" id="email"/>
+        <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent mdl-typography--text-center"
+                onclick="emailLogin();">Login via Email
+        </button>
+    </div>
+</div>
+
+
 <form id="my_form" name="my_form" action="/sendcode" method="POST" style="display: none;">
     <input type="text" id="code" name="code">
     <input type="text" id="csrf_nonce" name="csrf_nonce">
@@ -50,22 +57,23 @@
 <script>
     // initialize Account Kit with CSRF protection
     AccountKit_OnInteractive = function(){
-        console.log("{{csrf}}")
         AccountKit.init(
             {
-                appId:1463294277087563,
+                appId:"1463294277087563",
                 state:"{{csrf}}",
-                version:"v1.1"
+                version:"v1.1",
+                fbAppEventsEnabled:true,
+                Redirect:"/"
             }
         );
     };
+
     // login callback
     function loginCallback(response) {
-        console.log(response);
         if (response.status === "PARTIALLY_AUTHENTICATED") {
-            document.getElementById("code").value = response.code;
-            document.getElementById("csrf_nonce").value = response.state;
-            document.getElementById("my_form").submit();
+            var code = response.code;
+            var csrf = response.state;
+            // Send code to server to exchange for access token
         }
         else if (response.status === "NOT_AUTHENTICATED") {
             // handle authentication failure
@@ -74,11 +82,27 @@
             // handle bad parameters
         }
     }
-    function loginWithSMS(){
-        AccountKit.login("PHONE",{}, loginCallback);
+
+    // phone form submission handler
+    function smsLogin() {
+        var countryCode = document.getElementById("country_code").value;
+        var phoneNumber = document.getElementById("phone_number").value;
+        AccountKit.login(
+            'PHONE',
+            {countryCode: countryCode, phoneNumber: phoneNumber}, // will use default values if not specified
+            loginCallback
+        );
     }
-    function loginWithEmail(){
-        AccountKit.login("EMAIL", {}, loginCallback);
+
+
+    // email form submission handler
+    function emailLogin() {
+        var emailAddress = document.getElementById("email").value;
+        AccountKit.login(
+            'EMAIL',
+            {emailAddress: emailAddress},
+            loginCallback
+        );
     }
 </script>
 </body>
